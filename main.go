@@ -53,7 +53,13 @@ func main() {
 		// clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Update(secret)
 	}
 	// pvcSpec.StorageClassName = ""
-	StorageClass := "standard"
+	// StorageClass := "standard"
+
+	// Dynamic Provisioning and Storage Classes in Kubernetes
+	// http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html
+
+	Size := "10Gi"
+
 	pvc := &apiv1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: pvcName,
@@ -62,14 +68,14 @@ func main() {
 			// },
 		},
 		Spec: apiv1.PersistentVolumeClaimSpec{
-			VolumeName: pvcName,
+			// VolumeName: pvcName,
 			AccessModes: []apiv1.PersistentVolumeAccessMode{
 				apiv1.ReadWriteOnce,
 			},
-			StorageClassName: &StorageClass,
+			// StorageClassName: &StorageClass,
 			Resources: apiv1.ResourceRequirements{
 				Requests: apiv1.ResourceList{
-					apiv1.ResourceStorage: resource.MustParse("10Gi"),
+					apiv1.ResourceStorage: resource.MustParse(Size),
 				},
 			},
 		},
