@@ -38,7 +38,7 @@ func main() {
 		panic(err)
 	}
 	secretName := "user-passwd"
-	pvcName := "test-pvc"
+	pvcName := "pv-couchdb"
 	// deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 	_, err = clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Get(secretName, metav1.GetOptions{})
 	if kerr.IsNotFound(err) {
@@ -57,19 +57,19 @@ func main() {
 	pvc := &apiv1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: pvcName,
-			Annotations: map[string]string{
-				"volume.beta.kubernetes.io/storage-class": "standard",
-			},
+			// Annotations: map[string]string{
+			// 	"volume.beta.kubernetes.io/storage-class": StorageClass,
+			// },
 		},
 		Spec: apiv1.PersistentVolumeClaimSpec{
-			VolumeName: "test-pvc",
+			VolumeName: pvcName,
 			AccessModes: []apiv1.PersistentVolumeAccessMode{
 				apiv1.ReadWriteOnce,
 			},
 			StorageClassName: &StorageClass,
 			Resources: apiv1.ResourceRequirements{
 				Requests: apiv1.ResourceList{
-					apiv1.ResourceStorage: resource.MustParse("1Gi"),
+					apiv1.ResourceStorage: resource.MustParse("10Gi"),
 				},
 			},
 		},
