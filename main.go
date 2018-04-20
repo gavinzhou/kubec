@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	apiv1 "k8s.io/api/core/v1"
+	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,11 +15,45 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-func main() {
-	s := map[string][]byte{
-		"admin":    []byte("admin"),
-		"password": []byte("passwd"),
+// CreateSecret is CreateSecret
+func CreateSecret(c kubernetes.Interface, meta metav1.ObjectMeta, transform func(*core.Secret) *core.Secret) (*core.Secret, string, error) {
+	cur, err := c.CoreV1().Secrets(core.NamespaceDefault).Get(meta.Name, metav1.GetOptions{})
+	fmt.Println(cur.Name)
+	if kerr.IsNotFound(err) {
+		fmt.Printf("create secret %v", meta.Name)
+		out, err := c.CoreV1().Secrets(meta.Namespace).Create(transform(&core.Secret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Secret",
+				APIVersion: core.SchemeGroupVersion.String(),
+			},
+			ObjectMeta: meta,
+		}))
+		return out, "create", err
+	} else if err != nil {
+		return nil, "unchange", err
+		// fmt.Printf("update secret %v", meta.Name)
+		// c.CoreV1().Secrets(core.NamespaceDefault).Update(secret)
 	}
+	return nil, "exist", nil
+}
+
+// func PatchSecret(c kubernetes.Interface, cur *core.Secret, transform func(*core.Secret) *core.Secret) (*core.Secret, string, error) {
+// 	return PatchSecretObject(c, cur, transform(cur.DeepCopy()))
+// }
+
+// func PatchSecretObject(c kubernetes.Interface, cur, mod *core.Secret) {
+// 	curJson, err := json.Marshal(cur)
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	modJson, err := json.Marshal(mod)
+// 	if err != nil {
+// 		return
+// 	}
+// }
+
+func main() {
 
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
@@ -33,56 +67,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset := kubernetes.NewForConfigOrDie(config)
 	if err != nil {
 		panic(err)
 	}
 	secretName := "user-passwd"
-
-	// deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
-	_, err = clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Get(secretName, metav1.GetOptions{})
-	secret := &apiv1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      secretName,
-			Namespace: apiv1.NamespaceDefault,
-		},
-		Data: s,
+	s := map[string][]byte{
+		"admin":    []byte("admin"),
+		"password": []byte("passwd"),
 	}
-	if kerr.IsNotFound(err) {
-		fmt.Println("create secret %s", secretName)
-		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Create(secret)
-
-	} else {
-		fmt.Println("update secret %s", secretName)
-		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Update(secret)
-	}
-	// pvcSpec.StorageClassName = ""
-	// StorageClass := "standard"
-
-	// Dynamic Provisioning and Storage Classes in Kubernetes
-	// http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html
-
-	// Size := "10Gi"
-	// pvcName := "pv-couchdb"
-	// pvc := &apiv1.PersistentVolumeClaim{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name: pvcName,
-	// 		// Annotations: map[string]string{
-	// 		// 	"volume.beta.kubernetes.io/storage-class": StorageClass,
-	// 		// },
-	// 	},
-	// 	Spec: apiv1.PersistentVolumeClaimSpec{
-	// 		// VolumeName: pvcName,
-	// 		AccessModes: []apiv1.PersistentVolumeAccessMode{
-	// 			apiv1.ReadWriteOnce,
-	// 		},
-	// 		// StorageClassName: &StorageClass,
-	// 		Resources: apiv1.ResourceRequirements{
-	// 			Requests: apiv1.ResourceList{
-	// 				apiv1.ResourceStorage: resource.MustParse(Size),
-	// 			},
-	// 		},
-	// 	},
-	// }
-	// clientset.CoreV1().PersistentVolumeClaims(apiv1.NamespaceDefault).Create(pvc)
+	_, status, _ := CreateSecret(clientset,
+		metav1.ObjectMeta{Name: secretName, Namespace: core.NamespaceDefault},
+		func(in *core.Secret) *core.Secret {
+			if in.Data == nil {
+				in.Data = s
+			}
+			return in
+		})
+	fmt.Println(status)
 }
