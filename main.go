@@ -6,7 +6,6 @@ import (
 
 	apiv1 "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -38,19 +37,22 @@ func main() {
 		panic(err)
 	}
 	secretName := "user-passwd"
-	pvcName := "pv-couchdb"
+
 	// deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 	_, err = clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Get(secretName, metav1.GetOptions{})
+	secret := &apiv1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: apiv1.NamespaceDefault,
+		},
+		Data: s,
+	}
 	if kerr.IsNotFound(err) {
-		secret := &apiv1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      secretName,
-				Namespace: apiv1.NamespaceDefault,
-			},
-			Data: s,
-		}
+
 		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Create(secret)
-		// clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Update(secret)
+
+	} else {
+		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Update(secret)
 	}
 	// pvcSpec.StorageClassName = ""
 	// StorageClass := "standard"
@@ -58,27 +60,27 @@ func main() {
 	// Dynamic Provisioning and Storage Classes in Kubernetes
 	// http://blog.kubernetes.io/2017/03/dynamic-provisioning-and-storage-classes-kubernetes.html
 
-	Size := "10Gi"
-
-	pvc := &apiv1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: pvcName,
-			// Annotations: map[string]string{
-			// 	"volume.beta.kubernetes.io/storage-class": StorageClass,
-			// },
-		},
-		Spec: apiv1.PersistentVolumeClaimSpec{
-			// VolumeName: pvcName,
-			AccessModes: []apiv1.PersistentVolumeAccessMode{
-				apiv1.ReadWriteOnce,
-			},
-			// StorageClassName: &StorageClass,
-			Resources: apiv1.ResourceRequirements{
-				Requests: apiv1.ResourceList{
-					apiv1.ResourceStorage: resource.MustParse(Size),
-				},
-			},
-		},
-	}
-	clientset.CoreV1().PersistentVolumeClaims(apiv1.NamespaceDefault).Create(pvc)
+	// Size := "10Gi"
+	// pvcName := "pv-couchdb"
+	// pvc := &apiv1.PersistentVolumeClaim{
+	// 	ObjectMeta: metav1.ObjectMeta{
+	// 		Name: pvcName,
+	// 		// Annotations: map[string]string{
+	// 		// 	"volume.beta.kubernetes.io/storage-class": StorageClass,
+	// 		// },
+	// 	},
+	// 	Spec: apiv1.PersistentVolumeClaimSpec{
+	// 		// VolumeName: pvcName,
+	// 		AccessModes: []apiv1.PersistentVolumeAccessMode{
+	// 			apiv1.ReadWriteOnce,
+	// 		},
+	// 		// StorageClassName: &StorageClass,
+	// 		Resources: apiv1.ResourceRequirements{
+	// 			Requests: apiv1.ResourceList{
+	// 				apiv1.ResourceStorage: resource.MustParse(Size),
+	// 			},
+	// 		},
+	// 	},
+	// }
+	// clientset.CoreV1().PersistentVolumeClaims(apiv1.NamespaceDefault).Create(pvc)
 }
