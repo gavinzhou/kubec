@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"path/filepath"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -48,10 +49,11 @@ func main() {
 		Data: s,
 	}
 	if kerr.IsNotFound(err) {
-
+		fmt.Println("create secret %s", secretName)
 		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Create(secret)
 
 	} else {
+		fmt.Println("update secret %s", secretName)
 		clientset.CoreV1().Secrets(apiv1.NamespaceDefault).Update(secret)
 	}
 	// pvcSpec.StorageClassName = ""
