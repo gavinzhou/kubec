@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	core_util "github.com/appscode/kutil/core/v1"
+
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -90,29 +92,30 @@ func main() {
 		"admin":  []byte("admin"),
 		"passwd": []byte("passwd"),
 	}
-	_, status, err := CreateSecret(clientset,
-		metav1.ObjectMeta{Name: secretName, Namespace: core.NamespaceDefault},
-		func(in *core.Secret) *core.Secret {
-			if in.Data == nil {
-				in.Data = data // can not change data
-			}
-			// in.Data["admin"] = []byte("admin")
-			// in.Data["passwd"] = []byte("passwd")
-			// this OK
-			return in
-		})
-	fmt.Println(status)
-	fmt.Println(err)
-	// _, s, err := core_util.CreateOrPatchSecret(clientset,
-	// 	metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: secretName},
+	// _, status, err := CreateSecret(clientset,
+	// 	metav1.ObjectMeta{Name: secretName, Namespace: core.NamespaceDefault},
 	// 	func(in *core.Secret) *core.Secret {
 	// 		if in.Data == nil {
-	// 			in.Data = make(map[string][]byte)
+	// 			in.Data = data // can not change data
 	// 		}
-	// 		in.Data["admin"] = []byte("admin")
-	// 		in.Data["password"] = []byte("password")
+	// 		// in.Data["admin"] = []byte("admin")
+	// 		// in.Data["passwd"] = []byte("passwd")
+	// 		// this OK
 	// 		return in
 	// 	})
-	// fmt.Println(s)
+	// fmt.Println(status)
 	// fmt.Println(err)
+	_, s, err := core_util.CreateOrPatchSecret(clientset,
+		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: secretName},
+		func(in *core.Secret) *core.Secret {
+			if in.Data == nil {
+				// in.Data = make(map[string][]byte)
+				in.Data = data
+			}
+			// in.Data["admin"] = []byte("admin")
+			// in.Data["password"] = []byte("password")
+			return in
+		})
+	fmt.Println(s)
+	fmt.Println(err)
 }
