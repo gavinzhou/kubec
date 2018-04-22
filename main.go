@@ -10,6 +10,7 @@ import (
 
 	core "k8s.io/api/core/v1"
 	kerr "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
@@ -88,34 +89,35 @@ func main() {
 		panic(err)
 	}
 	secretName := "user-passwd"
-	data := map[string][]byte{
-		"admin":  []byte("admin"),
-		"passwd": []byte("passwd"),
-	}
-	// _, status, err := CreateSecret(clientset,
-	// 	metav1.ObjectMeta{Name: secretName, Namespace: core.NamespaceDefault},
-	// 	func(in *core.Secret) *core.Secret {
-	// 		if in.Data == nil {
-	// 			in.Data = data // can not change data
-	// 		}
-	// 		// in.Data["admin"] = []byte("admin")
-	// 		// in.Data["passwd"] = []byte("passwd")
-	// 		// this OK
-	// 		return in
-	// 	})
-	// fmt.Println(status)
-	// fmt.Println(err)
 	_, s, err := core_util.CreateOrPatchSecret(clientset,
 		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: secretName},
 		func(in *core.Secret) *core.Secret {
 			if in.Data == nil {
-				// in.Data = make(map[string][]byte)
-				in.Data = data
+				in.Data = make(map[string][]byte)
 			}
-			// in.Data["admin"] = []byte("admin")
-			// in.Data["password"] = []byte("password")
+			in.Data["admin"] = []byte("admin")
+			in.Data["password"] = []byte("password")
 			return in
 		})
 	fmt.Println(s)
 	fmt.Println(err)
+	pvcName := "testpvc"
+	Size := "10Gi"
+	_, pvcs, _ := core_util.CreateOrPatchPVC(clientset,
+		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: pvcName},
+		func(p *core.PersistentVolumeClaim) *core.PersistentVolumeClaim {
+			p.Spec = core.PersistentVolumeClaimSpec{
+				AccessModes: []core.PersistentVolumeAccessMode{
+					core.ReadWriteOnce,
+				},
+				Resources: core.ResourceRequirements{
+					Requests: core.ResourceList{
+						core.ResourceStorage: resource.MustParse(Size),
+					},
+				},
+			}
+			return p
+		})
+	fmt.Println(pvcs)
+
 }
