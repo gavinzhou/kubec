@@ -6,7 +6,6 @@ jobs:
     environment:
       CHANGE_MINIKUBE_NONE_USER: true
     steps:
-      - checkout
       - run:
           command: |
             curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.10.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
@@ -25,3 +24,16 @@ jobs:
       - run:
           command: |
             sudo kubectl cluster-info
+            sudo chown -R $USER ~/.kube ~/.minikube
+      - run:
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            go get -d github.com/gavinzhou/kubec
+      - run:
+          command: |
+            cd ~/.go_workspace/src/github.com/gavinzhou/kubec
+            dep ensure
+            go run main.go
+      - run:
+          command: |
+            kubectl get pvc,secret
