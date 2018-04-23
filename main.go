@@ -97,6 +97,16 @@ func main() {
 						},
 					},
 					Spec: core.PodSpec{
+						Volumes: []core.Volume{
+							core.Volume{
+								Name: "testpvc",
+								VolumeSource: core.VolumeSource{
+									PersistentVolumeClaim: &core.PersistentVolumeClaimVolumeSource{
+										ClaimName: "testpvc",
+									},
+								},
+							},
+						},
 						Containers: []core.Container{
 							core.Container{
 								Name:  "nginx",
@@ -105,6 +115,12 @@ func main() {
 									{
 										Name:          "http",
 										ContainerPort: 80,
+									},
+								},
+								VolumeMounts: []core.VolumeMount{
+									{
+										Name:      "testpvc",
+										MountPath: "/mnt/testpvc",
 									},
 								},
 							},
