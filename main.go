@@ -13,6 +13,7 @@ import (
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -131,5 +132,34 @@ func main() {
 			return obj
 		})
 	fmt.Println(ds)
-	fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// create svc
+	svcName := "nginx"
+	_, ss, err := core_util.CreateOrPatchService(clientset,
+		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: svcName},
+		func(s *core.Service) *core.Service {
+			s.Spec = core.ServiceSpec{
+				ClusterIP: "None",
+				Ports: []core.ServicePort{
+					{
+						Name:       "http-1",
+						Port:       80,
+						TargetPort: intstr.FromInt(80),
+						Protocol:   "TCP",
+					},
+				},
+				Selector: map[string]string{
+					"app":         "deployment",
+					"app-version": "v1",
+				},
+			}
+			return s
+		})
+	fmt.Println(ss)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
