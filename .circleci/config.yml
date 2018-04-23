@@ -36,4 +36,4 @@ jobs:
             go run main.go
       - run:
           command: |
-            kubectl get pvc,secret
+            kubectl get pvc,secret,pod,deployment
