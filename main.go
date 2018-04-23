@@ -145,7 +145,7 @@ func main() {
 				ClusterIP: "None",
 				Ports: []core.ServicePort{
 					{
-						Name:       "http-1",
+						Name:       "http",
 						Port:       80,
 						TargetPort: intstr.FromInt(80),
 						Protocol:   "TCP",
