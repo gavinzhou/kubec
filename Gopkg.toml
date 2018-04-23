@@ -36,3 +36,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/appscode/kutil"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/appscode/go"
