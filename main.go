@@ -162,4 +162,19 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	// create configmap
+	configmapName := "nginx"
+	_, cs, err := core_util.CreateOrPatchConfigMap(clientset,
+		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: configmapName},
+		func(c *core.ConfigMap) *core.ConfigMap {
+			c.Data = map[string]string{
+				"nginx.conf": "nginx-cofnig",
+			}
+			return c
+		})
+	fmt.Println(cs)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
