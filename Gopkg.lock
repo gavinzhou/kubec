@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/appscode/go"
   packages = ["types"]
-  revision = "0eb2cabe3897bfd0fe615e9849583a88bcc82df4"
+  revision = "9ff183cbae833dbc9bd2da81eebfc71289e86605"
 
 [[projects]]
   branch = "master"
@@ -22,7 +22,7 @@
     "core/v1",
     "meta"
   ]
-  revision = "c3aa54aedcceb925ba15c7bf4a6c2e456138755e"
+  revision = "79e0b55a4f51d46d9d9837dac442623bd1c9ae27"
 
 [[projects]]
   branch = "master"
@@ -169,7 +169,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "2b6c08872f4b66da917bb4ce98df4f0307330f78"
 
 [[projects]]
   branch = "master"
@@ -182,7 +182,7 @@
     "idna",
     "lex/httplex"
   ]
-  revision = "d41e8174641f662c5a2d1c7a5f9e828788eb8706"
+  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
 
 [[projects]]
   branch = "master"
@@ -191,7 +191,7 @@
     "unix",
     "windows"
   ]
-  revision = "a2a45943ae67364d56c5d7d62dee78cff16c8dc8"
+  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -266,6 +266,18 @@
     "storage/v1beta1"
   ]
   revision = "1c973d529bdf4c4f349357ca665fb8e1d13e2d0d"
+
+[[projects]]
+  branch = "master"
+  name = "k8s.io/apiextensions-apiserver"
+  packages = [
+    "pkg/apis/apiextensions",
+    "pkg/apis/apiextensions/v1beta1",
+    "pkg/client/clientset/clientset",
+    "pkg/client/clientset/clientset/scheme",
+    "pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
+  ]
+  revision = "8cd0c4976f7b2d18177873eed93d0fe3b242de4b"
 
 [[projects]]
   branch = "master"
@@ -377,6 +389,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "684db7a80660a06e470ee74d255f2e84d1dfa68d582258b2bf2f85b83e2949ff"
+  inputs-digest = "0f518d81f3109170143385315fecc3e200284166539524001dff65009d9492c0"
   solver-name = "gps-cdcl"
   solver-version = 1
