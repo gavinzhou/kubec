@@ -11,6 +11,9 @@ import (
 
 	apps "k8s.io/api/apps/v1beta1"
 	core "k8s.io/api/core/v1"
+	extensionsobj "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	ex_ct "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -176,5 +179,35 @@ func main() {
 	fmt.Println(cs)
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	// create crd
+	nginxCrd := extensionsobj.CustomResourceDefinition{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "nginxs" + "." + "orangesys.io",
+			Labels: map[string]string{},
+		},
+		Spec: extensionsobj.CustomResourceDefinitionSpec{
+			Group:   "orangesys.io",
+			Version: "v1alpha1",
+			Scope:   extensionsobj.NamespaceScoped,
+			Names: extensionsobj.CustomResourceDefinitionNames{
+				Plural: "nginxs",
+				Kind:   "nginx",
+			},
+		},
+	}
+	crds := []*extensionsobj.CustomResourceDefinition{
+		&nginxCrd,
+	}
+
+	// need "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset" client init
+	clientSet := ex_ct.NewForConfigOrDie(config)
+	crdClient := clientSet.ApiextensionsV1beta1().CustomResourceDefinitions()
+
+	for _, crd := range crds {
+		if _, err := crdClient.Create(crd); err != nil && !apierrors.IsAlreadyExists(err) {
+			fmt.Println(err)
+		}
 	}
 }
