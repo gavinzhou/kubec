@@ -145,7 +145,6 @@ func main() {
 		metav1.ObjectMeta{Namespace: core.NamespaceDefault, Name: svcName},
 		func(s *core.Service) *core.Service {
 			s.Spec = core.ServiceSpec{
-				ClusterIP: "None",
 				Ports: []core.ServicePort{
 					{
 						Name:       "http",
